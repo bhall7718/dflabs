@@ -1,0 +1,15 @@
+{
+	"name": "DestinationDataset_p7h",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "popdatapocdatalake",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureBlobFSFile",
+		"typeProperties": {
+			"fileName": "",
+			"folderPath": "data"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

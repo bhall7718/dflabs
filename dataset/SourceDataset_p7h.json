@@ -1,0 +1,15 @@
+{
+	"name": "SourceDataset_p7h",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "popdatablobconn",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureBlob",
+		"typeProperties": {
+			"fileName": "",
+			"folderPath": "data"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
