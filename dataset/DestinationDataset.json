@@ -1,0 +1,27 @@
+{
+	"name": "DestinationDataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQL_Server_DestDB",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"structure": [
+			{
+				"name": "PersonID",
+				"type": "Int32"
+			},
+			{
+				"name": "Name",
+				"type": "String"
+			},
+			{
+				"name": "LastModifytime",
+				"type": "DateTime"
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[data_dest_table]"
+		}
+	}
+}

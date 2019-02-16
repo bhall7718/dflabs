@@ -1,0 +1,23 @@
+{
+	"name": "WatermarkDataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQL_Server_DestDB",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"structure": [
+			{
+				"name": "TableName",
+				"type": "String"
+			},
+			{
+				"name": "WatermarkValue",
+				"type": "DateTime"
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[watermarktable]"
+		}
+	}
+}
