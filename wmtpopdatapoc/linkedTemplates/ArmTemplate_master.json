@@ -7,6 +7,14 @@
 			"metadata": "Data Factory Name",
 			"defaultValue": "wmtpopdatapoc"
 		},
+		"SQL_Server_DestDB_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'SQL_Server_DestDB'"
+		},
+		"SQL_Server_SourceDB_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'SQL_Server_SourceDB'"
+		},
 		"popdatablobconn_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'popdatablobconn'"
@@ -15,13 +23,21 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'popdatapocdatalake'"
 		},
-		"SQL_Server_SourceDB_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SQL_Server_SourceDB'"
+		"DestinationDataset_p7h_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
 		},
-		"SQL_Server_DestDB_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SQL_Server_DestDB'"
+		"DestinationDataset_p7h_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "data"
+		},
+		"SourceDataset_p7h_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"SourceDataset_p7h_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "data"
 		},
 		"popdatapocdatalake_properties_typeProperties_url": {
 			"type": "string",
@@ -54,20 +70,32 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"SQL_Server_DestDB_connectionString": {
+						"value": "[parameters('SQL_Server_DestDB_connectionString')]"
+					},
+					"SQL_Server_SourceDB_connectionString": {
+						"value": "[parameters('SQL_Server_SourceDB_connectionString')]"
+					},
 					"popdatablobconn_connectionString": {
 						"value": "[parameters('popdatablobconn_connectionString')]"
 					},
 					"popdatapocdatalake_accountKey": {
 						"value": "[parameters('popdatapocdatalake_accountKey')]"
 					},
-					"SQL_Server_SourceDB_connectionString": {
-						"value": "[parameters('SQL_Server_SourceDB_connectionString')]"
-					},
-					"SQL_Server_DestDB_connectionString": {
-						"value": "[parameters('SQL_Server_DestDB_connectionString')]"
-					},
 					"popdatapocdatalake_properties_typeProperties_url": {
 						"value": "[parameters('popdatapocdatalake_properties_typeProperties_url')]"
+					},
+					"DestinationDataset_p7h_properties_typeProperties_fileName": {
+						"value": "[parameters('DestinationDataset_p7h_properties_typeProperties_fileName')]"
+					},
+					"DestinationDataset_p7h_properties_typeProperties_folderPath": {
+						"value": "[parameters('DestinationDataset_p7h_properties_typeProperties_folderPath')]"
+					},
+					"SourceDataset_p7h_properties_typeProperties_fileName": {
+						"value": "[parameters('SourceDataset_p7h_properties_typeProperties_fileName')]"
+					},
+					"SourceDataset_p7h_properties_typeProperties_folderPath": {
+						"value": "[parameters('SourceDataset_p7h_properties_typeProperties_folderPath')]"
 					}
 				}
 			},

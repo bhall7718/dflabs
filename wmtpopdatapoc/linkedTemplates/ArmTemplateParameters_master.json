@@ -5,17 +5,29 @@
 		"factoryName": {
 			"value": "wmtpopdatapoc"
 		},
+		"SQL_Server_DestDB_connectionString": {
+			"value": ""
+		},
+		"SQL_Server_SourceDB_connectionString": {
+			"value": ""
+		},
 		"popdatablobconn_connectionString": {
 			"value": ""
 		},
 		"popdatapocdatalake_accountKey": {
 			"value": ""
 		},
-		"SQL_Server_SourceDB_connectionString": {
+		"DestinationDataset_p7h_properties_typeProperties_fileName": {
 			"value": ""
 		},
-		"SQL_Server_DestDB_connectionString": {
+		"DestinationDataset_p7h_properties_typeProperties_folderPath": {
+			"value": "data"
+		},
+		"SourceDataset_p7h_properties_typeProperties_fileName": {
 			"value": ""
+		},
+		"SourceDataset_p7h_properties_typeProperties_folderPath": {
+			"value": "data"
 		},
 		"popdatapocdatalake_properties_typeProperties_url": {
 			"value": "https://wmtpopdatapoc.dfs.core.windows.net"
