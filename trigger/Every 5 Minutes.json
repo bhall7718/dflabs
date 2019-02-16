@@ -1,0 +1,23 @@
+{
+	"name": "Every 5 Minutes",
+	"properties": {
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "Incremental SQL Copy Pipeline",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 5,
+				"startTime": "2019-02-16T01:28:00.000Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}
