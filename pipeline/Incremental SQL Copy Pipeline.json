@@ -212,7 +212,7 @@
 						"Content-Type": "application/json"
 					},
 					"body": {
-						"message": "@{activity('Copy1').error.message}",
+						"message": "@{activity('StoredProceduretoWriteWatermarkActivity').error.message}",
 						"subject": "Failure",
 						"dataFactoryName": "@{pipeline().DataFactory}",
 						"pipelineName": "@{pipeline().Pipeline}",
@@ -319,6 +319,12 @@
 					}
 				}
 			}
-		]
+		],
+		"parameters": {
+			"receiver": {
+				"type": "String",
+				"defaultValue": "bihal@microsoft.com"
+			}
+		}
 	}
 }
