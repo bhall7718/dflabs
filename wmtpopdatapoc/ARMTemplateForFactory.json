@@ -689,6 +689,419 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/Incremental SQL Copy Pipeline')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Walmart Stores Pipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Evaluates what rows were recently modified or added since the last run, then hands those to a stored procedure to be merged into the master destination table.",
+				"activities": [
+					{
+						"name": "LookupLastChangeTrackingVersionActivity",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlSource",
+								"sqlReaderQuery": "SELECT \n      [SYS_CHANGE_VERSION] as LastChangeTrackingVersion\n  FROM [dbo].[table_store_ChangeTracking_version]\n  WHERE TableName = 'US_Stores'"
+							},
+							"dataset": {
+								"referenceName": "ChangeTrackingDataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "LookupCurrentChangeTrackingVersionActivity",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlSource",
+								"sqlReaderQuery": "SELECT CHANGE_TRACKING_CURRENT_VERSION() as CurrentChangeTrackingVersion"
+							},
+							"dataset": {
+								"referenceName": "Source_US_Stores",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "MergeAndUpdateTrackingProc",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "LookupLastChangeTrackingVersionActivity",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "LookupCurrentChangeTrackingVersionActivity",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlSource",
+								"sqlReaderQuery": "select * from US_Stores RIGHT OUTER JOIN CHANGETABLE(CHANGES US_Stores, @{activity('LookupLastChangeTrackingVersionActivity').output.firstRow.LastChangeTrackingVersion}) as CT on US_Stores.Store_Nbr = CT.Store_Nbr where CT.SYS_CHANGE_VERSION <= @{activity('LookupCurrentChangeTrackingVersionActivity').output.firstRow.CurrentChangeTrackingVersion}"
+							},
+							"sink": {
+								"type": "SqlSink",
+								"writeBatchSize": 10000,
+								"sqlWriterStoredProcedureName": "[concat('[', 'dbo].[Merge_US_Stores]')]",
+								"sqlWriterTableType": "US_StoresType",
+								"storedProcedureParameters": {
+									"currentTrackingVersion": {
+										"type": "Int64",
+										"value": "@{activity('LookupCurrentChangeTrackingVersionActivity').output.firstRow.CurrentChangeTrackingVersion}"
+									},
+									"Return_Message": {
+										"type": "String",
+										"value": null
+									}
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"columnMappings": {
+									"Store_Nbr": "Store_Nbr",
+									"Global_Location_Number": "Global_Location_Number",
+									"DUNS": "DUNS",
+									"Store_Name": "Store_Name",
+									"Store_Type": "Store_Type",
+									"Building_Address": "Building_Address",
+									"Building_City": "Building_City",
+									"Building_State_Prov": "Building_State_Prov",
+									"Building_Postal_Code": "Building_Postal_Code",
+									"Small_Package___Mailing_Address": "Small_Package___Mailing_Address",
+									"Mailing_City": "Mailing_City",
+									"Mailing_State_Prov": "Mailing_State_Prov",
+									"Mailing_Postal_Code": "Mailing_Postal_Code",
+									"Phone_Number": "Phone_Number",
+									"Size__Sq_Ft_": "Size__Sq_Ft_",
+									"Open_Date": "Open_Date",
+									"Regional_DC": "Regional_DC",
+									"Dry_Grocery_DC": "Dry_Grocery_DC",
+									"Perishable_DC": "Perishable_DC",
+									"Specialty_DC": "Specialty_DC"
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_US_Stores",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Dest_US_Stores",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ChangeTrackingDataset')]",
+				"[concat(variables('factoryId'), '/datasets/Source_US_Stores')]",
+				"[concat(variables('factoryId'), '/datasets/Dest_US_Stores')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ChangeTrackingDataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SQL_Server_DestDB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"structure": [
+					{
+						"name": "TableName",
+						"type": "String"
+					},
+					{
+						"name": "SYS_CHANGE_VERSION",
+						"type": "Int64"
+					}
+				],
+				"typeProperties": {
+					"tableName": "[concat('[', 'dbo].[table_store_ChangeTracking_version]')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/SQL_Server_DestDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_US_Stores')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SQL_Server_SourceDB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"structure": [
+					{
+						"name": "Store_Nbr",
+						"type": "Int32"
+					},
+					{
+						"name": "Global_Location_Number",
+						"type": "String"
+					},
+					{
+						"name": "DUNS",
+						"type": "String"
+					},
+					{
+						"name": "Store_Name",
+						"type": "String"
+					},
+					{
+						"name": "Store_Type",
+						"type": "String"
+					},
+					{
+						"name": "Building_Address",
+						"type": "String"
+					},
+					{
+						"name": "Building_City",
+						"type": "String"
+					},
+					{
+						"name": "Building_State_Prov",
+						"type": "String"
+					},
+					{
+						"name": "Building_Postal_Code",
+						"type": "String"
+					},
+					{
+						"name": "Small_Package___Mailing_Address",
+						"type": "String"
+					},
+					{
+						"name": "Mailing_City",
+						"type": "String"
+					},
+					{
+						"name": "Mailing_State_Prov",
+						"type": "String"
+					},
+					{
+						"name": "Mailing_Postal_Code",
+						"type": "String"
+					},
+					{
+						"name": "Phone_Number",
+						"type": "String"
+					},
+					{
+						"name": "Size__Sq_Ft_",
+						"type": "String"
+					},
+					{
+						"name": "Open_Date",
+						"type": "String"
+					},
+					{
+						"name": "Regional_DC",
+						"type": "String"
+					},
+					{
+						"name": "Dry_Grocery_DC",
+						"type": "String"
+					},
+					{
+						"name": "Perishable_DC",
+						"type": "String"
+					},
+					{
+						"name": "Specialty_DC",
+						"type": "String"
+					}
+				],
+				"typeProperties": {
+					"tableName": "[concat('[', 'dbo].[US_Stores]')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/SQL_Server_SourceDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dest_US_Stores')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SQL_Server_DestDB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"structure": [
+					{
+						"name": "Store_Nbr",
+						"type": "Int32"
+					},
+					{
+						"name": "Global_Location_Number",
+						"type": "String"
+					},
+					{
+						"name": "DUNS",
+						"type": "String"
+					},
+					{
+						"name": "Store_Name",
+						"type": "String"
+					},
+					{
+						"name": "Store_Type",
+						"type": "String"
+					},
+					{
+						"name": "Building_Address",
+						"type": "String"
+					},
+					{
+						"name": "Building_City",
+						"type": "String"
+					},
+					{
+						"name": "Building_State_Prov",
+						"type": "String"
+					},
+					{
+						"name": "Building_Postal_Code",
+						"type": "String"
+					},
+					{
+						"name": "Small_Package___Mailing_Address",
+						"type": "String"
+					},
+					{
+						"name": "Mailing_City",
+						"type": "String"
+					},
+					{
+						"name": "Mailing_State_Prov",
+						"type": "String"
+					},
+					{
+						"name": "Mailing_Postal_Code",
+						"type": "String"
+					},
+					{
+						"name": "Phone_Number",
+						"type": "String"
+					},
+					{
+						"name": "Size__Sq_Ft_",
+						"type": "String"
+					},
+					{
+						"name": "Open_Date",
+						"type": "String"
+					},
+					{
+						"name": "Regional_DC",
+						"type": "String"
+					},
+					{
+						"name": "Dry_Grocery_DC",
+						"type": "String"
+					},
+					{
+						"name": "Perishable_DC",
+						"type": "String"
+					},
+					{
+						"name": "Specialty_DC",
+						"type": "String"
+					}
+				],
+				"typeProperties": {
+					"tableName": "changedStoreRows"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/SQL_Server_DestDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Every 4 Hours')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "Walmart Stores Pipeline",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Hour",
+						"interval": 4,
+						"startTime": "2019-02-18T22:22:00.000Z",
+						"timeZone": "UTC"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/Walmart Stores Pipeline')]"
+			]
 		}
 	]
 }
