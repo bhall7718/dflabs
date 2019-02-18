@@ -1,0 +1,26 @@
+{
+	"name": "Every 8 Hours",
+	"properties": {
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "Incremental SQL Copy Pipeline",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"receiver": "bihal@microsoft.com"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Hour",
+				"interval": 8,
+				"startTime": "2019-02-18T16:50:00.000Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}
