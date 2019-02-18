@@ -31,6 +31,9 @@
 		},
 		"popdatapocdatalake_properties_typeProperties_url": {
 			"value": "https://wmtpopdatapoc.dfs.core.windows.net"
+		},
+		"Every 8 Hours_properties_Incremental SQL Copy Pipeline_parameters_receiver": {
+			"value": "bihal@microsoft.com"
 		}
 	}
 }
