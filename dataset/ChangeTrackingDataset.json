@@ -1,0 +1,23 @@
+{
+	"name": "ChangeTrackingDataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQL_Server_DestDB",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"structure": [
+			{
+				"name": "TableName",
+				"type": "String"
+			},
+			{
+				"name": "SYS_CHANGE_VERSION",
+				"type": "Int64"
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[table_store_ChangeTracking_version]"
+		}
+	}
+}
