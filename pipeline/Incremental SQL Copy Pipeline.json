@@ -153,6 +153,31 @@
 					"referenceName": "SQL_Server_DestDB",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "SendSuccessEmail",
+				"type": "WebActivity",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"url": "https://prod-23.westus.logic.azure.com:443/workflows/93d01d0ec4e54a2bb0e04fc8c88c3256/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=k8T80fwjT3ZrXmH29z8UEG1cFTnc7NAOmcPzVFPZZx4",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"message": "@{activity('Copy1').output.dataWritten}",
+						"subject": "Success",
+						"dataFactoryName": "@{pipeline().DataFactory}",
+						"pipelineName": "@{pipeline().Pipeline}",
+						"receiver": "@pipeline().parameters.receiver"
+					}
+				}
 			}
 		]
 	}
