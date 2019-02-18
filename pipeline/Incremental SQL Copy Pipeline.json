@@ -179,7 +179,7 @@
 						"Content-Type": "application/json"
 					},
 					"body": {
-						"message": "Rows Written: @{activity('IncrementalCopyActivity').output.rowsWritten}",
+						"message": "Rows Written: @{activity('IncrementalCopyActivity').output}",
 						"subject": "Success",
 						"dataFactoryName": "@{pipeline().DataFactory}",
 						"pipelineName": "@{pipeline().Pipeline}",
