@@ -6,305 +6,12 @@
 			"type": "string",
 			"metadata": "Data Factory Name",
 			"defaultValue": "wmtpopdatapoc"
-		},
-		"SQL_Server_DestDB_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SQL_Server_DestDB'"
-		},
-		"SQL_Server_SourceDB_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SQL_Server_SourceDB'"
-		},
-		"popdatablobconn_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'popdatablobconn'"
-		},
-		"popdatapocdatalake_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'popdatapocdatalake'"
-		},
-		"popdatapocdatalake_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://wmtpopdatapoc.dfs.core.windows.net"
-		},
-		"DestinationDataset_p7h_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": ""
-		},
-		"DestinationDataset_p7h_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "data"
-		},
-		"SourceDataset_p7h_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": ""
-		},
-		"SourceDataset_p7h_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "data"
-		},
-		"Every 8 Hours_properties_Incremental SQL Copy Pipeline_parameters_receiver": {
-			"type": "string",
-			"defaultValue": "bihal@microsoft.com"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
-		{
-			"name": "[concat(parameters('factoryName'), '/SQL_Server_DestDB')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"connectionString": "[parameters('SQL_Server_DestDB_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SQL_Server_SourceDB')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"connectionString": "[parameters('SQL_Server_SourceDB_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/popdatablobconn')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('popdatablobconn_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/popdatapocdatalake')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('popdatapocdatalake_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('popdatapocdatalake_accountKey')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DestinationDataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SQL_Server_DestDB",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"structure": [
-					{
-						"name": "PersonID",
-						"type": "Int32"
-					},
-					{
-						"name": "Name",
-						"type": "String"
-					},
-					{
-						"name": "LastModifytime",
-						"type": "DateTime"
-					}
-				],
-				"typeProperties": {
-					"tableName": "[concat('[', 'dbo].[data_dest_table]')]"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SQL_Server_DestDB')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DestinationDataset_p7h')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "popdatapocdatalake",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureBlobFSFile",
-				"typeProperties": {
-					"fileName": "[parameters('DestinationDataset_p7h_properties_typeProperties_fileName')]",
-					"folderPath": "[parameters('DestinationDataset_p7h_properties_typeProperties_folderPath')]"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/popdatapocdatalake')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SourceDataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SQL_Server_SourceDB",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"structure": [
-					{
-						"name": "PersonID",
-						"type": "Int32"
-					},
-					{
-						"name": "Name",
-						"type": "String"
-					},
-					{
-						"name": "LastModifytime",
-						"type": "DateTime"
-					}
-				],
-				"typeProperties": {
-					"tableName": "[concat('[', 'dbo].[data_source_table]')]"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SQL_Server_SourceDB')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SourceDataset_p7h')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "popdatablobconn",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureBlob",
-				"typeProperties": {
-					"fileName": "[parameters('SourceDataset_p7h_properties_typeProperties_fileName')]",
-					"folderPath": "[parameters('SourceDataset_p7h_properties_typeProperties_folderPath')]"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/popdatablobconn')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/WatermarkDataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SQL_Server_DestDB",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"structure": [
-					{
-						"name": "TableName",
-						"type": "String"
-					},
-					{
-						"name": "WatermarkValue",
-						"type": "DateTime"
-					}
-				],
-				"typeProperties": {
-					"tableName": "[concat('[', 'dbo].[watermarktable]')]"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SQL_Server_DestDB')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CopyPipeline_p7h')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy_p7h",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Source",
-								"value": "data/"
-							},
-							{
-								"name": "Destination",
-								"value": "data/"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "BlobSource",
-								"recursive": true
-							},
-							"sink": {
-								"type": "AzureBlobFSSink",
-								"copyBehavior": "PreserveHierarchy"
-							},
-							"enableStaging": false,
-							"dataIntegrationUnits": 0
-						},
-						"inputs": [
-							{
-								"referenceName": "SourceDataset_p7h",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "DestinationDataset_p7h",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SourceDataset_p7h')]",
-				"[concat(variables('factoryId'), '/datasets/DestinationDataset_p7h')]"
-			]
-		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Incremental SQL Copy Pipeline')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -314,7 +21,6 @@
 					{
 						"name": "LookupOldWaterMarkActivity",
 						"type": "Lookup",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -322,22 +28,19 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "SqlSource"
 							},
 							"dataset": {
 								"referenceName": "WatermarkDataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						}
 					},
 					{
 						"name": "LookupNewWaterMarkActivity",
 						"type": "Lookup",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -345,7 +48,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "SqlSource",
@@ -353,8 +55,7 @@
 							},
 							"dataset": {
 								"referenceName": "SourceDataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						}
 					},
@@ -417,15 +118,13 @@
 						"inputs": [
 							{
 								"referenceName": "SourceDataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						],
 						"outputs": [
 							{
 								"referenceName": "DestinationDataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						]
 					},
@@ -447,7 +146,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"storedProcedureName": "[concat('[', 'dbo].[usp_write_watermark]')]",
 							"storedProcedureParameters": {
@@ -490,7 +188,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"url": "https://prod-23.westus.logic.azure.com:443/workflows/93d01d0ec4e54a2bb0e04fc8c88c3256/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=k8T80fwjT3ZrXmH29z8UEG1cFTnc7NAOmcPzVFPZZx4",
 							"method": "POST",
@@ -524,7 +221,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"url": "https://prod-23.westus.logic.azure.com:443/workflows/93d01d0ec4e54a2bb0e04fc8c88c3256/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=k8T80fwjT3ZrXmH29z8UEG1cFTnc7NAOmcPzVFPZZx4",
 							"method": "POST",
@@ -558,7 +254,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"url": "https://prod-23.westus.logic.azure.com:443/workflows/93d01d0ec4e54a2bb0e04fc8c88c3256/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=k8T80fwjT3ZrXmH29z8UEG1cFTnc7NAOmcPzVFPZZx4",
 							"method": "POST",
@@ -592,7 +287,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"url": "https://prod-23.westus.logic.azure.com:443/workflows/93d01d0ec4e54a2bb0e04fc8c88c3256/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=k8T80fwjT3ZrXmH29z8UEG1cFTnc7NAOmcPzVFPZZx4",
 							"method": "POST",
@@ -626,7 +320,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"url": "https://prod-23.westus.logic.azure.com:443/workflows/93d01d0ec4e54a2bb0e04fc8c88c3256/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=k8T80fwjT3ZrXmH29z8UEG1cFTnc7NAOmcPzVFPZZx4",
 							"method": "POST",
@@ -648,47 +341,8 @@
 						"type": "String",
 						"defaultValue": "bihal@microsoft.com"
 					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/WatermarkDataset')]",
-				"[concat(variables('factoryId'), '/datasets/SourceDataset')]",
-				"[concat(variables('factoryId'), '/datasets/DestinationDataset')]",
-				"[concat(variables('factoryId'), '/linkedServices/SQL_Server_DestDB')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Every 8 Hours')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "Incremental SQL Copy Pipeline",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"receiver": "[parameters('Every 8 Hours_properties_Incremental SQL Copy Pipeline_parameters_receiver')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Hour",
-						"interval": 8,
-						"startTime": "2019-02-18T17:00:00.000Z",
-						"timeZone": "UTC"
-					}
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/Incremental SQL Copy Pipeline')]"
-			]
+			}
 		}
 	]
 }
