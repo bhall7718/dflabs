@@ -19,14 +19,66 @@
 						"referenceName": "tstores",
 						"type": "DatasetReference"
 					},
-					"name": "SaveToBlobAsCSV",
-					"script": "FullStoreAddress sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['tstores.csv'],\n\ttruncate:true) ~> SaveToBlobAsCSV"
+					"name": "AllStoresAllDataCSV",
+					"script": "SortByStoreNbr sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['tstores.csv']) ~> AllStoresAllDataCSV"
+				},
+				{
+					"dataset": {
+						"referenceName": "tstores",
+						"type": "DatasetReference"
+					},
+					"name": "NeighborhoodMarketCSV",
+					"script": "NeighborhoodMarkets sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['simple-nh.csv']) ~> NeighborhoodMarketCSV"
+				},
+				{
+					"dataset": {
+						"referenceName": "tstores",
+						"type": "DatasetReference"
+					},
+					"name": "SupercenterCSV",
+					"script": "Supercenters sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['simple-supercenters.csv']) ~> SupercenterCSV"
+				},
+				{
+					"dataset": {
+						"referenceName": "tstores",
+						"type": "DatasetReference"
+					},
+					"name": "WalmartCSV",
+					"script": "Walmarts sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['simple-wm.csv']) ~> WalmartCSV"
+				},
+				{
+					"dataset": {
+						"referenceName": "tstores",
+						"type": "DatasetReference"
+					},
+					"name": "AllStoresCSV",
+					"script": "SelectSpecific sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['simple-allstores.csv']) ~> AllStoresCSV"
 				}
 			],
 			"transformations": [
 				{
 					"name": "FullStoreAddress",
 					"script": "Stores derive(FullStoreAddress = concat(Building_Address, ' ', Building_City, ' ', Building_State_Prov, ' ', Building_Postal_Code)) ~> FullStoreAddress"
+				},
+				{
+					"name": "SortByStoreNbr",
+					"script": "FullStoreAddress sort(desc(Store_Nbr, true)) ~> SortByStoreNbr"
+				},
+				{
+					"name": "SelectSpecific",
+					"script": "FullStoreAddress select(mapColumn(\n\t\tStore_Nbr,\n\t\tStore_Name,\n\t\tStore_Type,\n\t\tPhone_Number,\n\t\tSize__Sq_Ft_,\n\t\tFullStoreAddress\n\t))~> SelectSpecific"
+				},
+				{
+					"name": "NeighborhoodMarkets",
+					"script": "SelectSpecific filter(trim(Store_Type) == 'Neighborhood Market') ~> NeighborhoodMarkets"
+				},
+				{
+					"name": "Supercenters",
+					"script": "SelectSpecific filter(trim(Store_Type) == 'Supercenter') ~> Supercenters"
+				},
+				{
+					"name": "Walmarts",
+					"script": "SelectSpecific filter(trim(Store_Type) == 'Wal-Mart') ~> Walmarts"
 				}
 			]
 		}
