@@ -1,0 +1,34 @@
+{
+	"name": "Walmart Stores Transform",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_US_Stores2",
+						"type": "DatasetReference"
+					},
+					"name": "Stores",
+					"script": "source(output(\n\t\tStore_Nbr as integer,\n\t\tGlobal_Location_Number as string,\n\t\tDUNS as string,\n\t\tStore_Name as string,\n\t\tStore_Type as string,\n\t\tBuilding_Address as string,\n\t\tBuilding_City as string,\n\t\tBuilding_State_Prov as string,\n\t\tBuilding_Postal_Code as string,\n\t\tSmall_Package___Mailing_Address as string,\n\t\tMailing_City as string,\n\t\tMailing_State_Prov as string,\n\t\tMailing_Postal_Code as string,\n\t\tPhone_Number as string,\n\t\tSize__Sq_Ft_ as string,\n\t\tOpen_Date as string,\n\t\tRegional_DC as string,\n\t\tDry_Grocery_DC as string,\n\t\tPerishable_DC as string,\n\t\tSpecialty_DC as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> Stores"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "tstores",
+						"type": "DatasetReference"
+					},
+					"name": "SaveToBlobAsCSV",
+					"script": "FullStoreAddress sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['tstores.csv'],\n\ttruncate:true) ~> SaveToBlobAsCSV"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FullStoreAddress",
+					"script": "Stores derive(FullStoreAddress = concat(Building_Address, ' ', Building_City, ' ', Building_State_Prov, ' ', Building_Postal_Code)) ~> FullStoreAddress"
+				}
+			]
+		}
+	}
+}

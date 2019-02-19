@@ -1,0 +1,96 @@
+{
+	"name": "Source_US_Stores2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQL_Server_SourceDB",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Store_Nbr",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Global_Location_Number",
+				"type": "varchar"
+			},
+			{
+				"name": "DUNS",
+				"type": "varchar"
+			},
+			{
+				"name": "Store_Name",
+				"type": "varchar"
+			},
+			{
+				"name": "Store_Type",
+				"type": "varchar"
+			},
+			{
+				"name": "Building_Address",
+				"type": "varchar"
+			},
+			{
+				"name": "Building_City",
+				"type": "varchar"
+			},
+			{
+				"name": "Building_State_Prov",
+				"type": "varchar"
+			},
+			{
+				"name": "Building_Postal_Code",
+				"type": "varchar"
+			},
+			{
+				"name": "Small_Package___Mailing_Address",
+				"type": "varchar"
+			},
+			{
+				"name": "Mailing_City",
+				"type": "varchar"
+			},
+			{
+				"name": "Mailing_State_Prov",
+				"type": "varchar"
+			},
+			{
+				"name": "Mailing_Postal_Code",
+				"type": "varchar"
+			},
+			{
+				"name": "Phone_Number",
+				"type": "varchar"
+			},
+			{
+				"name": "Size__Sq_Ft_",
+				"type": "varchar"
+			},
+			{
+				"name": "Open_Date",
+				"type": "varchar"
+			},
+			{
+				"name": "Regional_DC",
+				"type": "varchar"
+			},
+			{
+				"name": "Dry_Grocery_DC",
+				"type": "varchar"
+			},
+			{
+				"name": "Perishable_DC",
+				"type": "varchar"
+			},
+			{
+				"name": "Specialty_DC",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[US_Stores]"
+		}
+	}
+}

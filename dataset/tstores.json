@@ -1,0 +1,19 @@
+{
+	"name": "tstores",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "wmtpopdatapocblob",
+			"type": "LinkedServiceReference"
+		},
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "bills-data"
+			},
+			"columnDelimiter": ",",
+			"firstRowAsHeader": true
+		},
+		"schema": []
+	}
+}
