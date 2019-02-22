@@ -1,0 +1,262 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "wmtpopdatapoc"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Stores Transforms')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Stores Data Transforms",
+						"type": "ExecuteDataFlow",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Walmart Stores Transform",
+								"type": "DataFlowReference"
+							},
+							"compute": {
+								"computeType": "General",
+								"dataTransformationUnits": 4,
+								"coreCount": 8,
+								"numberOfNodes": 0
+							}
+						}
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Walmart Stores Transform')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_US_Stores2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SQL_Server_SourceDB",
+					"type": "LinkedServiceReference"
+				},
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Store_Nbr",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Global_Location_Number",
+						"type": "varchar"
+					},
+					{
+						"name": "DUNS",
+						"type": "varchar"
+					},
+					{
+						"name": "Store_Name",
+						"type": "varchar"
+					},
+					{
+						"name": "Store_Type",
+						"type": "varchar"
+					},
+					{
+						"name": "Building_Address",
+						"type": "varchar"
+					},
+					{
+						"name": "Building_City",
+						"type": "varchar"
+					},
+					{
+						"name": "Building_State_Prov",
+						"type": "varchar"
+					},
+					{
+						"name": "Building_Postal_Code",
+						"type": "varchar"
+					},
+					{
+						"name": "Small_Package___Mailing_Address",
+						"type": "varchar"
+					},
+					{
+						"name": "Mailing_City",
+						"type": "varchar"
+					},
+					{
+						"name": "Mailing_State_Prov",
+						"type": "varchar"
+					},
+					{
+						"name": "Mailing_Postal_Code",
+						"type": "varchar"
+					},
+					{
+						"name": "Phone_Number",
+						"type": "varchar"
+					},
+					{
+						"name": "Size__Sq_Ft_",
+						"type": "varchar"
+					},
+					{
+						"name": "Open_Date",
+						"type": "varchar"
+					},
+					{
+						"name": "Regional_DC",
+						"type": "varchar"
+					},
+					{
+						"name": "Dry_Grocery_DC",
+						"type": "varchar"
+					},
+					{
+						"name": "Perishable_DC",
+						"type": "varchar"
+					},
+					{
+						"name": "Specialty_DC",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"tableName": "[concat('[', 'dbo].[US_Stores]')]"
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/tstores')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "wmtpopdatapocblob",
+					"type": "LinkedServiceReference"
+				},
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "bills-data"
+					},
+					"columnDelimiter": ",",
+					"firstRowAsHeader": true
+				},
+				"schema": []
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Walmart Stores Transform')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_US_Stores2",
+								"type": "DatasetReference"
+							},
+							"name": "Stores",
+							"script": "source(output(\n\t\tStore_Nbr as integer,\n\t\tGlobal_Location_Number as string,\n\t\tDUNS as string,\n\t\tStore_Name as string,\n\t\tStore_Type as string,\n\t\tBuilding_Address as string,\n\t\tBuilding_City as string,\n\t\tBuilding_State_Prov as string,\n\t\tBuilding_Postal_Code as string,\n\t\tSmall_Package___Mailing_Address as string,\n\t\tMailing_City as string,\n\t\tMailing_State_Prov as string,\n\t\tMailing_Postal_Code as string,\n\t\tPhone_Number as string,\n\t\tSize__Sq_Ft_ as string,\n\t\tOpen_Date as string,\n\t\tRegional_DC as string,\n\t\tDry_Grocery_DC as string,\n\t\tPerishable_DC as string,\n\t\tSpecialty_DC as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> Stores"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "tstores",
+								"type": "DatasetReference"
+							},
+							"name": "AllStoresAllDataCSV",
+							"script": "SortByStoreNbr sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['tstores.csv']) ~> AllStoresAllDataCSV"
+						},
+						{
+							"dataset": {
+								"referenceName": "tstores",
+								"type": "DatasetReference"
+							},
+							"name": "NeighborhoodMarketCSV",
+							"script": "NeighborhoodMarkets sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['simple-nh.csv']) ~> NeighborhoodMarketCSV"
+						},
+						{
+							"dataset": {
+								"referenceName": "tstores",
+								"type": "DatasetReference"
+							},
+							"name": "SupercenterCSV",
+							"script": "Supercenters sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['simple-supercenters.csv']) ~> SupercenterCSV"
+						},
+						{
+							"dataset": {
+								"referenceName": "tstores",
+								"type": "DatasetReference"
+							},
+							"name": "WalmartCSV",
+							"script": "Walmarts sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['simple-wm.csv']) ~> WalmartCSV"
+						},
+						{
+							"dataset": {
+								"referenceName": "tstores",
+								"type": "DatasetReference"
+							},
+							"name": "AllStoresCSV",
+							"script": "SelectSpecific sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1),\n\tpartitionFileNames:['simple-allstores.csv']) ~> AllStoresCSV"
+						}
+					],
+					"transformations": [
+						{
+							"name": "FullStoreAddress",
+							"script": "Stores derive(FullStoreAddress = concat(Building_Address, ' ', Building_City, ' ', Building_State_Prov, ' ', Building_Postal_Code)) ~> FullStoreAddress"
+						},
+						{
+							"name": "SortByStoreNbr",
+							"script": "FullStoreAddress sort(desc(Store_Nbr, true)) ~> SortByStoreNbr"
+						},
+						{
+							"name": "SelectSpecific",
+							"script": "FullStoreAddress select(mapColumn(\n\t\tStore_Nbr,\n\t\tStore_Name,\n\t\tStore_Type,\n\t\tPhone_Number,\n\t\tSize__Sq_Ft_,\n\t\tFullStoreAddress\n\t))~> SelectSpecific"
+						},
+						{
+							"name": "NeighborhoodMarkets",
+							"script": "SelectSpecific filter(trim(Store_Type) == 'Neighborhood Market') ~> NeighborhoodMarkets"
+						},
+						{
+							"name": "Supercenters",
+							"script": "SelectSpecific filter(trim(Store_Type) == 'Supercenter') ~> Supercenters"
+						},
+						{
+							"name": "Walmarts",
+							"script": "SelectSpecific filter(trim(Store_Type) == 'Wal-Mart') ~> Walmarts"
+						}
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Source_US_Stores2')]",
+				"[concat(variables('factoryId'), '/datasets/tstores')]"
+			]
+		}
+	]
+}

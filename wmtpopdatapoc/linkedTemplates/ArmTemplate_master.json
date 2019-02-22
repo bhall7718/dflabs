@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'popdatapocdatalake'"
 		},
+		"wmtpopdatapocblob_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'wmtpopdatapocblob'"
+		},
 		"DestinationDataset_p7h_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": ""
@@ -42,10 +46,6 @@
 		"popdatapocdatalake_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://wmtpopdatapoc.dfs.core.windows.net"
-		},
-		"Every 8 Hours_properties_Incremental SQL Copy Pipeline_parameters_receiver": {
-			"type": "string",
-			"defaultValue": "bihal@microsoft.com"
 		},
 		"containerUri": {
 			"type": "string",
@@ -86,6 +86,9 @@
 					"popdatapocdatalake_accountKey": {
 						"value": "[parameters('popdatapocdatalake_accountKey')]"
 					},
+					"wmtpopdatapocblob_connectionString": {
+						"value": "[parameters('wmtpopdatapocblob_connectionString')]"
+					},
 					"popdatapocdatalake_properties_typeProperties_url": {
 						"value": "[parameters('popdatapocdatalake_properties_typeProperties_url')]"
 					},
@@ -100,9 +103,6 @@
 					},
 					"SourceDataset_p7h_properties_typeProperties_folderPath": {
 						"value": "[parameters('SourceDataset_p7h_properties_typeProperties_folderPath')]"
-					},
-					"Every 8 Hours_properties_Incremental SQL Copy Pipeline_parameters_receiver": {
-						"value": "[parameters('Every 8 Hours_properties_Incremental SQL Copy Pipeline_parameters_receiver')]"
 					}
 				}
 			},
